@@ -1,0 +1,19 @@
+# Etapa 1 — Coleta
+twikit
+pyyaml
+python-dotenv
+
+# Etapa 2 — EDA
+pandas
+numpy
+matplotlib
+seaborn
+wordcloud
+nltk
+
+# Etapa 3 — Sentimento
+pysentimiento
+
+# Utilitários
+tqdm
+jupyter
