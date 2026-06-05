@@ -149,17 +149,22 @@ def parsear_previsao(html: str, ano: int) -> list[dict]:
     return leituras
 
 
+def baixar_mes_de_mares(ano: int, mes: int) -> list[dict]:
+    """Faz POST para a pagina principal e parseia a tabela mensal."""
+    fecha = f"{ano:04d}-{mes:02d}-01"
+    print(f"  POST {fecha}")
+    resp = requests.post(URL_BASE, headers=HEADERS, data={"fecha": fecha}, timeout=30)
+    resp.raise_for_status()
+    return parsear_mares(resp.text, ano, mes)
+
+
 def main(ano: int = 2025) -> None:
     DIR_RAW.mkdir(parents=True, exist_ok=True)
 
     print(f"Baixando mares de {ano}...")
     eventos = []
     for mes in range(1, 13):
-        fecha = f"{ano:04d}-{mes:02d}-01"
-        print(f"  POST {fecha}")
-        resp = requests.post(URL_BASE, headers=HEADERS, data={"fecha": fecha}, timeout=30)
-        resp.raise_for_status()
-        eventos_mes = parsear_mares(resp.text, ano, mes)
+        eventos_mes = baixar_mes_de_mares(ano, mes)
         print(f"    {len(eventos_mes)} eventos em {ABREV_MES[mes]}/{ano}")
         eventos.extend(eventos_mes)
         time.sleep(PAUSA)
@@ -168,8 +173,17 @@ def main(ano: int = 2025) -> None:
     df_mares.to_csv(caminho, index=False)
     print(f"  -> {len(df_mares)} linhas em {caminho}")
 
+    # Para juntar com ondas/vento (que cobrem os proximos ~7 dias) precisamos
+    # tambem das mares do mes atual. Baixamos esse mes em um CSV separado.
+    hoje = datetime.now()
+    print(f"\nBaixando mares de {ABREV_MES[hoje.month]}/{hoje.year} (para juncao)...")
+    df_mes_atual = pd.DataFrame(baixar_mes_de_mares(hoje.year, hoje.month))
+    caminho = DIR_RAW / "mares_previsao.csv"
+    df_mes_atual.to_csv(caminho, index=False)
+    print(f"  -> {len(df_mes_atual)} linhas em {caminho}")
+
     # Previsao usa o ano atual (sao os proximos ~7 dias a partir de hoje).
-    ano_prev = datetime.now().year
+    ano_prev = hoje.year
 
     print(f"\nBaixando previsao de ondas (ref. {ano_prev})...")
     resp = requests.get(URL_ONDAS, headers=HEADERS, timeout=30)

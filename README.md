@@ -9,7 +9,7 @@ A solução tem três etapas pedagógicas:
 | Etapa | Tema | Entregável |
 |---|---|---|
 | 1 | Engenharia de dados (Web Scraping + ETL) | `src/scrape.py` |
-| 2 | Ciência de dados (EDA) | `notebooks/eda.ipynb` *(em breve)* |
+| 2 | Ciência de dados (EDA) | `notebooks/eda.ipynb` |
 | 3 | Machine learning (classificação) | `notebooks/ml.ipynb` *(em breve)* |
 
 > 📄 Spec completo em
@@ -25,18 +25,27 @@ uv sync
 
 # 2. Rodar a Etapa 1 — coleta dos dados
 uv run python src/scrape.py
+
+# 3. Rodar a Etapa 2 — EDA
+uv run jupyter notebook notebooks/eda.ipynb
 ```
 
-A coleta leva cerca de 30 segundos (12 requests para marés + 2 para
-previsão, com pausa de 1.5s entre cada um para não bater no servidor).
+A coleta leva cerca de 30 segundos (12 requests para marés do ano + 1
+para o mês corrente + 2 para previsão, com pausa de 1.5s entre cada um
+para não bater no servidor).
 
-Ao final, três CSVs aparecem em `data/raw/`:
+Ao final da Etapa 1, quatro CSVs aparecem em `data/raw/`:
 
 | Arquivo | O que tem | Linhas típicas |
 |---|---|---|
 | `mares_2025.csv` | 4 marés/dia para o ano de 2025 inteiro | ~1.410 |
+| `mares_previsao.csv` | 4 marés/dia do mês corrente (para a junção da EDA) | ~120 |
 | `ondas.csv` | altura de onda hora a hora dos próximos ~6 dias | ~144 |
 | `vento.csv` | velocidade do vento hora a hora dos próximos ~7 dias | ~168 |
+
+A Etapa 2 (`notebooks/eda.ipynb`) consome esses CSVs, faz limpeza,
+explora cada dataset, junta tudo numa tabela horária e salva
+`data/processed/dataset.csv` (~144 linhas) — pronto para a Etapa 3.
 
 ## Schema dos CSVs
 
