@@ -12,13 +12,11 @@ venv/
 .venv/
 env/
 
+# uv
+.python-version
+
 # Jupyter
 .ipynb_checkpoints/
-
-# Secrets & sessão do twikit
-.env
-.twikit_cookies.json
-cookies.json
 
 # Dados gerados pelo pipeline
 data/
