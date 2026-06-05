@@ -10,7 +10,7 @@ A solução tem três etapas pedagógicas:
 |---|---|---|
 | 1 | Engenharia de dados (Web Scraping + ETL) | `src/scrape.py` |
 | 2 | Ciência de dados (EDA) | `notebooks/eda.ipynb` |
-| 3 | Machine learning (classificação) | `notebooks/ml.ipynb` *(em breve)* |
+| 3 | Machine learning (classificação) | `notebooks/ml.ipynb` |
 
 > 📄 Spec completo em
 > [`docs/superpowers/specs/2026-06-05-surf-tabuademares-design.md`](docs/superpowers/specs/2026-06-05-surf-tabuademares-design.md).
@@ -28,6 +28,9 @@ uv run python src/scrape.py
 
 # 3. Rodar a Etapa 2 — EDA
 uv run jupyter notebook notebooks/eda.ipynb
+
+# 4. Rodar a Etapa 3 — ML
+uv run jupyter notebook notebooks/ml.ipynb
 ```
 
 A coleta leva cerca de 30 segundos (12 requests para marés do ano + 1
@@ -46,6 +49,12 @@ Ao final da Etapa 1, quatro CSVs aparecem em `data/raw/`:
 A Etapa 2 (`notebooks/eda.ipynb`) consome esses CSVs, faz limpeza,
 explora cada dataset, junta tudo numa tabela horária e salva
 `data/processed/dataset.csv` (~144 linhas) — pronto para a Etapa 3.
+
+A Etapa 3 (`notebooks/ml.ipynb`) cria a label `surfavel` (RUIM / BOM /
+ÓTIMO) por uma heurística e treina três classificadores (`DecisionTree`,
+`RandomForest`, `KNN`) para reproduzi-la. Salva
+`data/processed/dataset_rotulado.csv` e gera o ranking de melhores dias
+e horários da janela de previsão.
 
 ## Schema dos CSVs
 
