@@ -54,11 +54,11 @@ A Etapa 2 precisa dos CSVs da Etapa 1. A Etapa 3 precisa do
 |---|---|---|
 | `mares_2025.csv` | 4 marés/dia de 2025 inteiro (contexto histórico) | ~1.410 |
 | `mares_previsao.csv` | 4 marés/dia do mês corrente (para juntar com a previsão) | ~120 |
-| `ondas.csv` | altura de onda hora a hora dos próximos ~6 dias | ~144 |
+| `ondas.csv` | altura de onda hora a hora dos próximos ~7 dias | ~168 |
 | `vento.csv` | velocidade do vento hora a hora dos próximos ~7 dias | ~168 |
 
 **Etapa 2** limpa, explora e junta tudo numa tabela horária
-`data/processed/dataset.csv` (~144 linhas) — só na janela em que existem
+`data/processed/dataset.csv` (~168 linhas) — só na janela em que existem
 onda e vento.
 
 **Etapa 3** cria a label `surfavel` (RUIM / BOM / ÓTIMO) por heurística,
@@ -118,7 +118,7 @@ Três seções importam:
 
 1. **Tabela mensal de marés** — o servidor devolve o mês pedido num POST
    com `fecha=YYYY-MM-01`. Por isso dá para baixar 2025 inteiro.
-2. **Previsão de ondas** (`/previsao/ondas`) — ~6 dias à frente.
+2. **Previsão de ondas** (`/previsao/ondas`) — ~7 dias à frente.
 3. **Previsão de vento** (`/previsao/vento`) — ~7 dias à frente.
 
 Marés históricas e previsão de onda/vento cobrem períodos diferentes.

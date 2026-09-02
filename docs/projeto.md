@@ -20,7 +20,7 @@ reproduzi-la.
 
 - **Local:** João Pessoa, PB
 - **Marés históricas:** ano de 2025 (contexto na EDA)
-- **Onda e vento:** janela de previsão do site (~6–7 dias)
+- **Onda e vento:** janela de previsão do site (~7 dias)
 - **Marés da junção:** mês corrente (`mares_previsao.csv`), para
   interpolar a altura da maré na mesma janela da previsão
 - **Stack:** Python 3.14, `uv`, `pandas`, `matplotlib` / `seaborn`,
@@ -88,11 +88,11 @@ modelos, árvore plotada, importância de features, dizer o que o modelo
 
 ## Limitações (vale deixar no notebook)
 
-1. O site só publica ~6–7 dias de onda e vento. Não dá para eleger o
+1. O site só publica ~7 dias de onda e vento. Não dá para eleger o
    melhor mês do ano sem coletar histórico ao longo do tempo.
 2. Não há período de swell nem direção relativa a uma praia específica.
 3. Sem labels reais de surfista, o teto do modelo é a heurística.
-4. ~144 linhas é pouco. Accuracy alta aqui quase sempre significa “o
+4. ~168 linhas é pouco. Accuracy alta aqui quase sempre significa “o
    modelo decorou a regra”, não “previmos o mar”.
 
 A resposta para Felipe e Nicholas é o ranking da **janela de previsão
