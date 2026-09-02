@@ -1,12 +1,13 @@
 """
-Etapa 1 - Web scraping de tabuademares.com/br/paraiba/joao-pessoa.
+Etapa 1 — web scraping de tabuademares.com/br/paraiba/joao-pessoa.
 
-Coleta:
-- Tábua de marés mensal de jan a dez de 2025 (4 mares/dia).
-- Previsao horaria de altura de onda (~6 dias).
-- Previsao horaria de velocidade do vento (~7 dias).
+Coleta quatro CSVs em data/raw/:
+- mares_2025.csv — tábua mensal de jan a dez de 2025 (4 marés/dia)
+- mares_previsao.csv — marés do mês corrente, para juntar com a previsão
+- ondas.csv — altura de onda hora a hora (~6 dias)
+- vento.csv — velocidade do vento hora a hora (~7 dias)
 
-Salva tres CSVs em data/raw/. Rodar com: uv run python src/scrape.py
+Rodar com: uv run python src/scrape.py
 """
 
 import re
