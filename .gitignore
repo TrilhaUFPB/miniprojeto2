@@ -1,39 +1,32 @@
-# Diretórios e arquivos gerados por ambientes virtuais
-venv/
-.env/
-
-# Arquivos de configuração do sistema operacional
-.DS_Store
-Thumbs.db
-
-# Arquivos temporários ou de cache
+# Python
+__pycache__/
 *.pyc
 *.pyo
-__pycache__/
-
-# Dados e modelos grandes
-data/
-models/
-
-# Arquivos de log
-*.log
-
-# Dependências geradas automaticamente
 *.egg-info/
 *.egg
 build/
 dist/
 
-# Configurações locais do Streamlit
-.streamlit/
+# Virtualenvs
+venv/
+.venv/
+env/
 
-# Arquivos grandes e desnecessários
-*.wav
-*.mp3
-*.h5
-*.pkl
+# uv
+.python-version
 
-# Configurações específicas do IDE
+# Jupyter
+.ipynb_checkpoints/
+
+# Dados gerados pelo pipeline
+data/
+reports/
+
+# IDEs / SO
 .vscode/
 .idea/
-.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
