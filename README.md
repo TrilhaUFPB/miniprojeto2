@@ -97,6 +97,11 @@ Um caminho que funciona:
    uma data completa.
 6. Monte um `DataFrame` e salve em `data/raw/`.
 
+Uma coisa a menos para se preocupar: esse site entrega tudo renderizado pelo
+servidor, inclusive os meses anteriores da tábua de marés. `requests` +
+`BeautifulSoup` dão conta das três fontes — **não é preciso Selenium** nem
+navegador automatizado.
+
 <details>
 <summary><b>Dicas, se travar</b></summary>
 
