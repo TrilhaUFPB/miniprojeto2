@@ -33,7 +33,7 @@ aprendizado.
 |---|---|
 | [`uv`](https://docs.astral.sh/uv/) | Gerencia o ambiente virtual e as dependências |
 | [`requests`](https://requests.readthedocs.io/) | Faz as requisições HTTP e baixa o HTML |
-| [`beautifulsoup4`](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) + `lxml` | Navega no HTML e localiza os elementos com o dado |
+| [`beautifulsoup4`](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) | Navega no HTML e localiza os elementos com o dado |
 | [`pandas`](https://pandas.pydata.org/docs/) | Tabelas, limpeza, junções, CSV |
 | [`matplotlib`](https://matplotlib.org/) / [`seaborn`](https://seaborn.pydata.org/) | Gráficos |
 | [`scikit-learn`](https://scikit-learn.org/stable/) | Split, treino, métricas, modelos |
@@ -62,8 +62,9 @@ uv run jupyter notebook
 Os caminhos nos notebooks são relativos a `notebooks/` (`../data/raw`). Se você
 abrir o Jupyter na raiz do repositório, vai tomar `FileNotFoundError`.
 
-Rode as etapas em ordem: a 2 precisa dos CSVs da 1, a 3 precisa do dataset
-processado da 2.
+> [!WARNING]
+> Siga as etapas em ordem. A Etapa 2 precisa dos CSVs da Etapa 1, e a Etapa 3
+> precisa do dataset processado da Etapa 2.
 
 ## Etapa 1 — Coleta (web scraping)
 
@@ -82,41 +83,31 @@ O esqueleto está em [`src/scrape.py`](src/scrape.py): as URLs, os headers, a
 pausa entre requisições e as funções que você precisa preencher. Os seletores
 não estão lá — descobri-los é o exercício.
 
-Um caminho que funciona:
+Por onde começar:
 
 1. Abra a página no navegador e o DevTools (F12, ou Cmd+Opt+I no Mac).
 2. Clique com o botão direito no número que você quer e escolha "Inspecionar".
    Olhe o `id` e as `class` do elemento e dos elementos que o contêm — é isso
    que você vai usar como seletor.
-3. Baixe a página com `requests` e **confirme que o dado está no HTML
-   devolvido**. Se não estiver, ele foi renderizado por JavaScript e você vai
-   precisar olhar a aba Network.
-4. Com `BeautifulSoup`, localize os elementos (`select`, `select_one`,
-   `find_all`) e extraia o texto.
-5. Normalize: vírgula decimal vira ponto, `HH:MM` vira hora, dia + mês viram
-   uma data completa.
-6. Monte um `DataFrame` e salve em `data/raw/`.
+3. Baixe a página com `requests` e confirme que o dado está no HTML devolvido.
 
-Uma coisa a menos para se preocupar: esse site entrega tudo renderizado pelo
-servidor, inclusive os meses anteriores da tábua de marés. `requests` +
-`BeautifulSoup` dão conta das três fontes — **não é preciso Selenium** nem
-navegador automatizado.
+O resto do caminho é com você.
+
+Uma preocupação a menos: esse site entrega tudo renderizado pelo servidor,
+inclusive os meses anteriores da tábua de marés. `requests` + `BeautifulSoup`
+dão conta das três fontes — **não é preciso Selenium** nem navegador
+automatizado.
 
 <details>
 <summary><b>Dicas, se travar</b></summary>
 
 - A tábua de marés mostra o mês atual por padrão. Para pedir outro mês, veja na
-  aba **Network** do DevTools o que o navegador envia quando você troca o mês:
-  o corpo da requisição carrega um campo de data. É isso que permite baixar um
-  ano inteiro.
-- As páginas de onda e de vento têm o mesmo layout — um bloco por dia, com uma
-  linha por hora dentro. Uma função só resolve as duas.
-- O coeficiente de maré e a fase da lua não estão no texto: estão no **nome da
-  classe** do ícone. `elemento.get("class")` devolve a lista de classes.
+  aba **Network** do DevTools o que o navegador envia quando você troca o mês.
+  É isso que permite baixar um ano inteiro.
+- As páginas de onda e de vento têm o mesmo layout — uma função só resolve as
+  duas.
 - Antes de parsear, imprima `resp.status_code` e `len(resp.text)`. Metade dos
   bugs de scraping é a resposta não ser o que você imagina.
-- Um CSV vazio é o erro mais silencioso que existe. Sempre imprima o número de
-  linhas gravadas.
 
 </details>
 
@@ -125,12 +116,12 @@ navegador automatizado.
 Web scraping mexe com o servidor de outra pessoa. Não negociável:
 
 - **Identifique-se** com um `User-Agent` real (já está no esqueleto).
-- **Pause entre requisições** (1 a 2 segundos). Você vai fazer ~14 requests;
-  sem pausa isso parece ataque.
-- **Trabalhe em cima do arquivo local.** Baixe uma vez, salve, e desenvolva o
-  parse no HTML/CSV salvo. Não rode o scraper em loop enquanto depura.
-- **Leia o `robots.txt` do site.** Coletar para estudar é uma coisa; volume é
-  outra.
+- **Pause entre requisições** (1 a 2 segundos). Sem pausa, uma sequência de
+  requests parece ataque.
+- **Trabalhe no arquivo local.** Baixe uma vez, salve, e desenvolva o parse no
+  HTML salvo — não rode o scraper em loop enquanto depura.
+- **Leia o [`robots.txt`](https://tabuademares.com/robots.txt) do site.** Ele
+  diz quais caminhos o servidor libera para acesso automatizado.
 
 ### O que os CSVs precisam ter
 
@@ -152,8 +143,8 @@ A parte difícil é a junção, e ela não tem resposta única: onda e vento sã
 leituras horárias, maré são ~4 eventos por dia (os instantes de máxima e
 mínima). Levar a maré para uma grade horária exige uma decisão — interpolar
 entre os eventos, repetir o último valor, ou guardar apenas se ela está
-subindo ou descendo. Cada opção assume algo sobre a curva real da maré.
-Escolha, justifique no notebook, e diga onde a suposição erra.
+subindo ou descendo. Escolha, justifique no notebook, e diga onde a suposição
+erra.
 
 Um gráfico por pergunta, e cada gráfico com uma frase dizendo o que você leu
 nele. Gráfico sem leitura não conta.
@@ -177,37 +168,17 @@ heurística, então ele é no máximo tão bom quanto ela. Acurácia de 0,99 aqu
 significa que o modelo decorou o seu `if`, não que você previu o mar. Dizer
 isso na conclusão vale mais do que a acurácia.
 
-## Limites dos dados (isso faz parte da avaliação)
-
-1. O site publica onda e vento só para os próximos ~7 dias. **Não dá para
-   eleger o melhor mês do ano** com isso. A tábua de marés cobre o ano inteiro
-   e permite discutir sazonalidade de maré e coeficiente — não de swell.
-2. Não há período de swell nem direção relativa a uma praia específica, que é o
-   que um surfista de verdade olha.
-3. Sem rótulos de surfista real, o teto do modelo é a heurística que você
-   inventou.
-4. Uma janela de ~7 dias dá poucas linhas. Métrica alta em pouco dado quase
-   sempre significa outra coisa.
-
-Uma entrega boa responde **qual a melhor janela dentro da previsão atual** e
-explica por que a versão anual da pergunta não é respondível com esses dados —
-ou propõe como seria (por exemplo, rodar o scraper todo dia por alguns meses e
-acumular histórico).
-
 ## Entregáveis
 
 - `src/scrape.py` funcionando de ponta a ponta.
-- `notebooks/eda.ipynb` com a limpeza, a junção justificada, os gráficos e as
-  conclusões escritas.
-- `notebooks/ml.ipynb` com a label definida e documentada, os modelos
-  avaliados, a interpretação e o ranking de horários.
+- `notebooks/eda.ipynb` com a limpeza, a junção e as conclusões.
+- `notebooks/ml.ipynb` com a label definida, o modelo avaliado e o ranking de
+  horários.
 - A resposta para Felipe e Nicholas, em uma frase, na conclusão da Etapa 3.
 
-O que se avalia: o scraper aguenta uma segunda execução sem quebrar; as
-decisões de limpeza e junção estão justificadas; os gráficos respondem
-perguntas em vez de enfeitar; a label é explícita e defensável; a avaliação do
-modelo é honesta; e os limites dos dados aparecem na conclusão em vez de serem
-varridos para debaixo do tapete.
+Na correção eu vou ler o código: como vocês fizeram a coleta, como trataram os
+dados, e se esse tratamento ficou bom o suficiente para o modelo prever bem. Se
+não ficar, Felipe e Nicholas vão se frustrar e desistir da vida de surfistas.
 
 ## Estrutura
 
@@ -226,16 +197,21 @@ miniprojeto2/
 
 ## Referências
 
-**Vídeos sobre web scraping**
+**Vídeos**
 
-<!-- TODO: adicionar os links dos vídeos de referência -->
+[Playlist de web scraping com Python](https://www.youtube.com/watch?v=42sTntMEn6o&list=PLg3ZPsW_sghSkRacynznQeEs-vminyTQk)
+— foi essa que eu assisti na minha época na Tail. Se quiserem, assistam: os
+**4 primeiros vídeos** já cobrem tudo que este projeto precisa, o resto vai
+além do necessário aqui.
+
+E se preferirem ir direto ao ponto: uma boa conversa com o ChatGPT sobre como
+funcionam o `requests` e o `BeautifulSoup` — e como pegar informação do HTML de
+uma página — já resolve :)
 
 **Documentação**
 
 - [requests — Quickstart](https://requests.readthedocs.io/en/latest/user/quickstart/)
 - [BeautifulSoup — searching the tree](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#searching-the-tree)
-- [Seletores CSS (MDN)](https://developer.mozilla.org/pt-BR/docs/Web/CSS/CSS_selectors)
 - [pandas — 10 minutes to pandas](https://pandas.pydata.org/docs/user_guide/10min.html)
 - [pandas — merge, join, concatenate](https://pandas.pydata.org/docs/user_guide/merging.html)
 - [scikit-learn — getting started](https://scikit-learn.org/stable/getting_started.html)
-- [uv — guia de projetos](https://docs.astral.sh/uv/guides/projects/)
