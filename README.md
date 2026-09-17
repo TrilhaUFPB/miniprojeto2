@@ -4,6 +4,8 @@ Felipe Duarte e Nicholas gostam de surfar, mas só vêm a João Pessoa em alguns
 períodos do ano. A pergunta do projeto: **quando eles devem voltar para pegar
 as melhores ondas?**
 
+![Felipe Duarte e Nicholas surfando na orla de João Pessoa](assets/surfistas.jpg)
+
 Os dados para responder isso existem e são públicos.
 [tabuademares.com](https://tabuademares.com/br/paraiba/joao-pessoa) publica,
 para João Pessoa, a tábua de marés com coeficiente e fase da lua, e a previsão
