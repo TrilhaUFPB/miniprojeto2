@@ -1,113 +1,219 @@
-# Reconhecimento de Emoções em Áudio
+# Mini-Projeto 2 — Quando voltar a João Pessoa para surfar?
 
-Este é um projeto de **classificação de emoções em áudio**, onde é utilizado o dataset **RAVDESS** para treinar um modelo capaz de identificar a emoção presente em arquivos de áudio enviados pelos usuários. A aplicação conta com uma interface interativa desenvolvida em **Streamlit**, permitindo que os usuários enviem áudios para análise.
+Felipe Duarte e Nicholas gostam de surfar, mas só vêm a João Pessoa em alguns
+períodos do ano. A pergunta do projeto: **quando eles devem voltar para pegar
+as melhores ondas?**
 
-### 🎥 Vídeo Explicativo: [Mini Projeto 2 - Trilha](https://www.youtube.com/watch?v=xf8GMCGjloQ&ab_channel=LuigiSchmitt)
+![Felipe Duarte e Nicholas surfando na orla de João Pessoa](assets/surfistas.jpg)
 
-![Descrição da Imagem](https://i.imgur.com/33MqEWQ.png)
+Os dados para responder isso existem e são públicos.
+[tabuademares.com](https://tabuademares.com/br/paraiba/joao-pessoa) publica,
+para João Pessoa, a tábua de marés com coeficiente e fase da lua, e a previsão
+de altura de onda e de vento hora a hora. O que o site **não** publica é a
+resposta: os rótulos que aparecem lá (`MUITO BOM`, `BOM`, `MAU`) são para
+**pesca**, que valoriza mar calmo — quase o oposto do que um surfista procura.
 
-## Pipeline do Projeto
+Ou seja: o dado está lá, a resposta não. Construir a resposta é o projeto.
 
-### 1. Coleta e Organização dos Dados
+## O que você vai fazer
 
-- **Dataset Utilizado**: [RAVDESS (Ryerson Audio-Visual Database of Emotional Speech and Song)](https://zenodo.org/record/1188976)
-  - O dataset contém gravações de áudios com diferentes emoções atuadas, como: alegria, tristeza, raiva, calma, medo, nojo, surpresa e neutro.
-  - As emoções são representadas por números nos nomes dos arquivos.
+| Etapa | Tarefa | Entrega |
+|---|---|---|
+| 1 | Engenharia de dados — web scraping do site | CSVs em `data/raw/` |
+| 2 | Ciência de dados — limpeza, junção e EDA | `data/processed/dataset.csv`, gráficos e conclusões em `notebooks/eda.ipynb` |
+| 3 | Machine learning — classificar condições e ranquear horários | modelo avaliado e interpretado em `notebooks/ml.ipynb` |
 
-- **Organização**:
-  - Modality (01 = full-AV, 02 = video-only, 03 = audio-only).
-  - Vocal channel (01 = speech, 02 = song).
-  - Emotion (01 = neutral, 02 = calm, 03 = happy, 04 = sad, 05 = angry, 06 = fearful, 07 = disgust, 08 = surprised).
-  - Emotional intensity (01 = normal, 02 = strong). NOTE: There is no strong intensity for the 'neutral' emotion.
-  - Statement (01 = "Kids are talking by the door", 02 = "Dogs are sitting by the door").
-  - Repetition (01 = 1st repetition, 02 = 2nd repetition).
-  - Actor (01 to 24. Odd numbered actors are male, even numbered actors are female).
+Nada aqui está resolvido, e é de propósito. Os arquivos são esqueletos:
+docstrings, assinaturas de função, seções e perguntas. As decisões — quais
+seletores usar, como juntar tabelas de granularidade diferente, o que conta
+como onda boa, qual modelo treinar — são suas, e é nelas que está o
+aprendizado.
 
-### 2. Extração de Features
+## Ferramentas
 
-A extração de features é uma etapa fundamental para converter os arquivos de áudio em representações numéricas compreensíveis pelo modelo de machine learning. Foram utilizadas as seguintes técnicas:
+| Ferramenta | Para quê |
+|---|---|
+| [`uv`](https://docs.astral.sh/uv/) | Gerencia o ambiente virtual e as dependências |
+| [`requests`](https://requests.readthedocs.io/) | Faz as requisições HTTP e baixa o HTML |
+| [`beautifulsoup4`](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) | Navega no HTML e localiza os elementos com o dado |
+| [`pandas`](https://pandas.pydata.org/docs/) | Tabelas, limpeza, junções, CSV |
+| [`matplotlib`](https://matplotlib.org/) / [`seaborn`](https://seaborn.pydata.org/) | Gráficos |
+| [`scikit-learn`](https://scikit-learn.org/stable/) | Split, treino, métricas, modelos |
+| Jupyter | Os notebooks das Etapas 2 e 3 |
 
-- **MFCCs (Mel-Frequency Cepstral Coefficients)**: Capturam as características espectrais do áudio.
-- **Chroma Features**: Representam as energias das notas musicais.
-- **Spectral Contrast**: Diferença entre os picos e vales no espectro de frequências.
-- **Zero-Crossing Rate**: Taxa de mudança de sinal no áudio.
+Tudo isso já está em `pyproject.toml`. Se quiser trocar por algo equivalente
+(`httpx` no lugar de `requests`, `polars` no lugar de `pandas`, `plotly` nos
+gráficos), pode — só justifique e adicione a dependência.
 
-As features foram extraídas usando a biblioteca **librosa** e normalizadas para melhor desempenho do modelo.
+## Setup
 
-### 3. Treinamento do Modelo
+Requer `uv` instalado e Python `>= 3.14`.
 
-- **Modelo Utilizado**:
-  - Um modelo de aprendizado de máquina foi treinado para classificar as emoções com base nas features extraídas.
-  - Frameworks como **TensorFlow/Keras** foram utilizados.
+```bash
+# instala as dependências e cria o .venv
+uv sync
 
-- **Divisão dos Dados**:
-  - O dataset foi dividido em conjuntos de treinamento, validação e teste.
-  - Foi utilizada validação cruzada para evitar overfitting e avaliar a performance do modelo.
+# Etapa 1
+uv run python src/scrape.py
 
-### 4. Interface com Streamlit
+# Etapas 2 e 3 — abra o Jupyter de dentro de notebooks/
+cd notebooks
+uv run jupyter notebook
+```
 
-- **Funcionalidades**:
-  - Upload de arquivos de áudio pelo usuário.
-  - Predição da emoção baseada no modelo treinado.
-  - Exibição de resultados com a probabilidade de cada emoção.
+Os caminhos nos notebooks são relativos a `notebooks/` (`../data/raw`). Se você
+abrir o Jupyter na raiz do repositório, vai tomar `FileNotFoundError`.
 
-### 5. Avaliação do Modelo
+> [!WARNING]
+> Siga as etapas em ordem. A Etapa 2 precisa dos CSVs da Etapa 1, e a Etapa 3
+> precisa do dataset processado da Etapa 2.
 
-- **Métricas de Avaliação**:
-  - Acurácia
-  - Matriz de confusão
-  - F1-score, precisão e recall
+## Etapa 1 — Coleta (web scraping)
 
-- **Resultados**:
-  - O desempenho do modelo foi avaliado nos dados de teste, e os resultados foram apresentados em forma de relatórios e gráficos no Streamlit.
+Fonte: <https://tabuademares.com/br/paraiba/joao-pessoa>
 
----
+Três partes do site interessam:
 
-## Como Executar o Projeto
+1. **Tábua mensal de marés** (página principal) — cerca de 4 marés por dia, com
+   horário, altura, coeficiente de maré e fase da lua.
+2. **Previsão de ondas** (`/previsao/ondas`) — altura hora a hora, ~7 dias à
+   frente.
+3. **Previsão de vento** (`/previsao/vento`) — velocidade e direção hora a hora,
+   ~7 dias à frente.
 
-1. Faça um fork desse repositório para o seu perfil do GitHub
+O esqueleto está em [`src/scrape.py`](src/scrape.py): as URLs, os headers, a
+pausa entre requisições e as funções que você precisa preencher. Os seletores
+não estão lá — descobri-los é o exercício.
 
-2. Clone este repositório:
-   ```bash
-   git clone https://github.com/seu-usuario/audio-emotion-classification.git
-   ```
+Por onde começar:
 
-3. Instale as dependências:
-   ```bash
-   pip install -r requirements.txt
-   ```
+1. Abra a página no navegador e o DevTools (F12, ou Cmd+Opt+I no Mac).
+2. Clique com o botão direito no número que você quer e escolha "Inspecionar".
+   Olhe o `id` e as `class` do elemento e dos elementos que o contêm — é isso
+   que você vai usar como seletor.
+3. Baixe a página com `requests` e confirme que o dado está no HTML devolvido.
 
-4. Baixe o dataset RAVDESS e organize os arquivos conforme descrito no código.
+O resto do caminho é com você.
 
-5. Execute o aplicativo Streamlit:
-   ```bash
-   streamlit run app.py
-   ```
+Uma preocupação a menos: esse site entrega tudo renderizado pelo servidor,
+inclusive os meses anteriores da tábua de marés. `requests` + `BeautifulSoup`
+dão conta das três fontes — **não é preciso Selenium** nem navegador
+automatizado.
 
-6. Envie um arquivo de áudio no aplicativo e veja o modelo predizer a emoção presente.
+<details>
+<summary><b>Dicas, se travar</b></summary>
 
----
+- A tábua de marés mostra o mês atual por padrão. Para pedir outro mês, veja na
+  aba **Network** do DevTools o que o navegador envia quando você troca o mês.
+  É isso que permite baixar um ano inteiro.
+- As páginas de onda e de vento têm o mesmo layout — uma função só resolve as
+  duas.
+- Antes de parsear, imprima `resp.status_code` e `len(resp.text)`. Metade dos
+  bugs de scraping é a resposta não ser o que você imagina.
 
-## Tecnologias Utilizadas
+</details>
 
-- **Python**
-- **Streamlit**
-- **Librosa**
-- **TensorFlow/Keras**
-- **Matplotlib/Seaborn** (para visualizações)
+### Regras de convivência
 
----
+Web scraping mexe com o servidor de outra pessoa. Não negociável:
 
-## Próximos Passos
+- **Identifique-se** com um `User-Agent` real (já está no esqueleto).
+- **Pause entre requisições** (1 a 2 segundos). Sem pausa, uma sequência de
+  requests parece ataque.
+- **Trabalhe no arquivo local.** Baixe uma vez, salve, e desenvolva o parse no
+  HTML salvo — não rode o scraper em loop enquanto depura.
+- **Leia o [`robots.txt`](https://tabuademares.com/robots.txt) do site.** Ele
+  diz quais caminhos o servidor libera para acesso automatizado.
 
-- Adicionar suporte para outros datasets e emoções.
-- Melhorar a interface do Streamlit com gráficos interativos.
-- Implementar detecção em tempo real para gravações ao vivo.
+### O que os CSVs precisam ter
 
----
+O formato é seu, mas as etapas seguintes precisam de, no mínimo:
 
-## Conclusão
-Podemos ver que nosso modelo é mais preciso na predição das emoções surpresa e raiva, o que faz sentido, pois os arquivos de áudio dessas emoções diferem bastante dos outros em aspectos como tom, velocidade, etc. Caso você queira contribuir sinta-se a vontade e me contate em: schmittluigi@gmail.com ou se você me conhece fale comigo :)
+- **marés:** data, horário do evento, altura, e se é maré alta ou baixa;
+- **ondas e vento:** data, hora, valor e direção.
 
----
+Coeficiente de maré e fase da lua são opcionais — mas rendem análise na
+Etapa 2.
 
+## Etapa 2 — EDA
+
+Roteiro em [`notebooks/eda.ipynb`](notebooks/eda.ipynb). Você vai carregar os
+CSVs, limpar, explorar cada fonte, juntar tudo numa tabela horária e salvar em
+`data/processed/dataset.csv`.
+
+A parte difícil é a junção, e ela não tem resposta única: onda e vento são
+leituras horárias, maré são ~4 eventos por dia (os instantes de máxima e
+mínima). Levar a maré para uma grade horária exige uma decisão — interpolar
+entre os eventos, repetir o último valor, ou guardar apenas se ela está
+subindo ou descendo. Escolha, justifique no notebook, e diga onde a suposição
+erra.
+
+Um gráfico por pergunta, e cada gráfico com uma frase dizendo o que você leu
+nele. Gráfico sem leitura não conta.
+
+## Etapa 3 — Modelagem
+
+Roteiro em [`notebooks/ml.ipynb`](notebooks/ml.ipynb).
+
+Como o site rotula para pesca, **não existe label pronta**. Sua primeira tarefa
+é escrever em código a regra que separa condição ruim, boa e ótima: quais
+variáveis entram (altura da onda, vento, maré, direção), quais limiares, e de
+onde vem cada número. Um chute informado é aceitável desde que declarado.
+
+Depois disso é o fluxo padrão: features e alvo, split, treinar pelo menos dois
+modelos de famílias diferentes, avaliar e **interpretar** — plotar a árvore,
+olhar a importância das features, checar se o que o modelo aprendeu parece com
+a sua regra.
+
+Um ponto que costuma passar batido: o modelo aprende a copiar a sua
+heurística, então ele é no máximo tão bom quanto ela. Acurácia de 0,99 aqui
+significa que o modelo decorou o seu `if`, não que você previu o mar. Dizer
+isso na conclusão vale mais do que a acurácia.
+
+## Entregáveis
+
+- `src/scrape.py` funcionando de ponta a ponta.
+- `notebooks/eda.ipynb` com a limpeza, a junção e as conclusões.
+- `notebooks/ml.ipynb` com a label definida, o modelo avaliado e o ranking de
+  horários.
+- A resposta para Felipe e Nicholas, em uma frase, na conclusão da Etapa 3.
+
+Na correção eu vou ler o código: como vocês fizeram a coleta, como trataram os
+dados, e se esse tratamento ficou bom o suficiente para o modelo prever bem. Se
+não ficar, Felipe e Nicholas vão se frustrar e desistir da vida de surfistas.
+
+## Estrutura
+
+```
+miniprojeto2/
+├── src/scrape.py          # Etapa 1 — esqueleto
+├── notebooks/
+│   ├── eda.ipynb          # Etapa 2 — roteiro
+│   └── ml.ipynb           # Etapa 3 — roteiro
+├── data/                  # gerado ao rodar (fora do git)
+│   ├── raw/
+│   └── processed/
+├── pyproject.toml
+└── README.md
+```
+
+## Referências
+
+**Vídeos**
+
+[Playlist de web scraping com Python](https://www.youtube.com/watch?v=42sTntMEn6o&list=PLg3ZPsW_sghSkRacynznQeEs-vminyTQk)
+— foi essa que eu assisti na minha época na Tail. Se quiserem, assistam: os
+**4 primeiros vídeos** já cobrem tudo que este projeto precisa, o resto vai
+além do necessário aqui.
+
+E se preferirem ir direto ao ponto: uma boa conversa com o ChatGPT sobre como
+funcionam o `requests` e o `BeautifulSoup` — e como pegar informação do HTML de
+uma página — já resolve :)
+
+**Documentação**
+
+- [requests — Quickstart](https://requests.readthedocs.io/en/latest/user/quickstart/)
+- [BeautifulSoup — searching the tree](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#searching-the-tree)
+- [pandas — 10 minutes to pandas](https://pandas.pydata.org/docs/user_guide/10min.html)
+- [pandas — merge, join, concatenate](https://pandas.pydata.org/docs/user_guide/merging.html)
+- [scikit-learn — getting started](https://scikit-learn.org/stable/getting_started.html)
