@@ -47,6 +47,22 @@ gráficos), pode — só justifique e adicione a dependência.
 
 ## Setup
 
+### 1. Fazer um fork do repositório
+
+Comece fazendo um **fork** deste repositório para a sua conta no GitHub:
+
+1. Clique no botão **Fork** no canto superior direito desta página.
+2. Clone o seu fork para a máquina:
+   ```bash
+   git clone https://github.com/[seu-usuario]/miniprojeto2.git
+   cd miniprojeto2
+   ```
+
+Assim você terá uma cópia do projeto na sua conta, e conseguirá fazer push das
+suas soluções.
+
+### 2. Instalar dependências
+
 Requer `uv` instalado e Python `>= 3.14`.
 
 ```bash
